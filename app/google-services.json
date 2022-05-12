@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "237623434260",
+    "project_id": "caminos-db",
+    "storage_bucket": "caminos-db.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237623434260:android:2222635db3e9f588d29b01",
+        "android_client_info": {
+          "package_name": "com.example.caminos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237623434260-4k9ig8tnabr10fp0ji22dbncabj3bt1d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDangZnPHmUGmKLl7qcFzeyvdC_LIWO5a4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237623434260-4k9ig8tnabr10fp0ji22dbncabj3bt1d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
