@@ -87,12 +87,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //mDatabase.child("Combis").child("Segrampo").push().setValue(p);
 
         cargarPuntos(puntosReal, puntos);
-        LatLng p = puntosReal.get(1);
+        double lat = puntosReal.get(1).latitude;
+        double log = puntosReal.get(1).longitude;
         /*Polyline polyline1 = googleMap.addPolyline(new PolylineOptions().
                 clickable(true).
                 add(puntosReal.get(1),puntosReal.get(2),puntosReal.get(3), puntosReal.get(4)));
 */
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(p, 4));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,log), 4));
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
         mMap.setOnPolylineClickListener(this);
         mMap.setOnPolygonClickListener(this);
