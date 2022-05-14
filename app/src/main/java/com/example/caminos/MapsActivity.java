@@ -16,7 +16,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.caminos.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.model.Polygon;
@@ -41,10 +43,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
     private FusedLocationProviderClient fusedLocationClient;
+
     DatabaseReference mDatabase;
-    double milat;
-    double milon;
-    LatLng par1, par2, par3, par4, par5, par6;
+    FirebaseDatabase firebaseDatabase;
+
+    private ArrayList<Marker> tmpRealParaderos = new ArrayList<>();
+    private ArrayList<Marker> RealParaderos = new ArrayList<>();
+    private Double milat;
+    private Double milon;
+
+    //Paraderos
+
+    public LatLng p1,p2,p3,p4,p5,p6;
+    private ArrayList<LatLng> puntosForRuta = new ArrayList<>();
 
 
     @Override
@@ -59,17 +70,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        mDatabase = firebaseDatabase.getReference();
         retornaMiPosicion();
+
+
     }
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
         ArrayList<LatLng> points = null;
-        ArrayList<LatLng> puntos  = new ArrayList<>();
-        ArrayList<LatLng> puntosReal  = new ArrayList<>();
         PolylineOptions lineOptions = null;
 
 
@@ -80,52 +92,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             return;
         }
+        cargarParaderos();
+        Log.e("POSI","");
+        p1 = puntosForRuta.get(1);
+        Log.e("POSI",""+p1.toString());
+
+        Polyline ruta = googleMap.addPolyline(new PolylineOptions()
+                .clickable(true));
+
+
+
         mMap.setMyLocationEnabled(true);
-        fusedLocationClient.getLastLocation();
-
-        //LatLng p = new LatLng(-27.684, 133.903);
-        //mDatabase.child("Combis").child("Segrampo").push().setValue(p);
-
-        cargarPuntos(puntosReal, puntos);
-        double lat = puntosReal.get(1).latitude;
-        double log = puntosReal.get(1).longitude;
-        /*Polyline polyline1 = googleMap.addPolyline(new PolylineOptions().
-                clickable(true).
-                add(puntosReal.get(1),puntosReal.get(2),puntosReal.get(3), puntosReal.get(4)));
-*/
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,log), 4));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,log), 4));
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-23.684, 133.903), 4));
         mMap.setOnPolylineClickListener(this);
         mMap.setOnPolygonClickListener(this);
         }
 
-    private void cargarPuntos(ArrayList<LatLng> puntosReal, ArrayList<LatLng> puntos) {
-        for(int i=1;i<=6;i++){
-            String a = ""+i;
-            mDatabase.child("Combis").child("Segrampo").child(a).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for(LatLng latlng: puntosReal){
-                       puntosReal.remove(latlng);
-                    }
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    MapsPunts mp = snapshot.getValue(MapsPunts.class);
-                    double lat = mp.getLatitud();
-                    double lon = mp.getLongitud();
-                    LatLng point = new LatLng(lat, lon);
-                    Log.e("MENSAJE","Latitud: "+lat+ " Longitud: "+lon);
-                    puntos.add(point);
-                    }
-                    puntosReal.clear();
-                    puntosReal.addAll(puntos);
+    private void cargarParaderos() {
+        mDatabase.child("Combis").child("Segrampo").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(Marker marker: RealParaderos) {
+                    marker.remove();
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Log.e("MENSAJE",""+snapshot.getValue());
+                    MapsPunts puntos = snapshot.getValue(MapsPunts.class);
+                    //snapshot.getValue(MapsPunts.class).getLatitud();
+                    //Log.e("MENSAJE2",""+puntos.getLatitud());
+                    double lat = puntos.getLatitude();
+                    double lon = puntos.getLongitude();
+                    LatLng posi = new LatLng(lat,lon);
+                    puntosForRuta.add(posi);
+                    Log.e("MENSAJE3","Latitud: "+lat+"Longitud: "+lon);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(posi).title("Paradero").alpha(0.7f).
+                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                    tmpRealParaderos.add(mMap.addMarker(markerOptions));
+
+
+                    //LatLng point = new LatLng(lat, lon);
+                    //Log.e("MENSAJE","Latitud: "+lat+ " Longitud: "+lon);
 
                 }
-            });
-        }
+                RealParaderos.clear();
+                RealParaderos.addAll(tmpRealParaderos);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 
