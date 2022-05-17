@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,10 +18,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.caminos.databinding.ActivityMapsBinding;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -32,7 +37,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -51,6 +58,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ArrayList<Marker> RealParaderos = new ArrayList<>();
     private Double milat;
     private Double milon;
+
+    private String combi="Segrampo";
+    PolylineOptions polylineOptions = new PolylineOptions();
 
     //Paraderos
 
@@ -102,7 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     private void cargarParaderos() {
-        mDatabase.child("Combis").child("Segrampo").addValueEventListener(new ValueEventListener() {
+        mDatabase.child("Combis").child(combi).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(Marker marker: RealParaderos) {
@@ -118,15 +128,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     double lon = puntos.getLongitude();
                     LatLng posi = new LatLng(lat,lon);
                     puntosForRuta.add(posi);
-                    Log.e("MENSAJE3","Latitud: "+lat+"Longitud: "+lon);
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(posi).title("Paradero").alpha(0.7f).
                             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                     tmpRealParaderos.add(mMap.addMarker(markerOptions));
-
-
-                    //LatLng point = new LatLng(lat, lon);
-                    //Log.e("MENSAJE","Latitud: "+lat+ " Longitud: "+lon);
 
                 }
                 RealParaderos.clear();
@@ -142,24 +147,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void graficaLinea(){
-        //Log.e("POSI","");
-        p1 = puntosForRuta.get(0);
-        p2 = puntosForRuta.get(1);
-        p3 = puntosForRuta.get(2);
-        p4 = puntosForRuta.get(3);
-        p5 = puntosForRuta.get(4);
-        p6 = puntosForRuta.get(5);
-
-        Log.e("POSI",""+p1.latitude);
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .add(p1)
-                .add(p2)
-                .add(p3)
-                .add(p4)
-                .add(p5)
-                .add(p6);
+        List<PatternItem> pattern = Arrays.asList(new Dot(), new Gap(20), new Dash(30), new Gap(20));
+        //PolylineOptions polylineOptions = new PolylineOptions();
+        for(int i = 0;i<=5;i++){
+            p1 = puntosForRuta.get(i);
+            polylineOptions.add(p1).color(Color.BLUE).geodesic(true).width(7).pattern(pattern);
+        }
         Polyline polyline = mMap.addPolyline(polylineOptions);
-
     }
 
     private void retornaMiPosicion() {
