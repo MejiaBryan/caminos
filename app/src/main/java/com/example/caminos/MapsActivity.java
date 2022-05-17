@@ -93,14 +93,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return;
         }
         cargarParaderos();
-        Log.e("POSI","");
-        p1 = puntosForRuta.get(1);
-        Log.e("POSI",""+p1.toString());
-
-        Polyline ruta = googleMap.addPolyline(new PolylineOptions()
-                .clickable(true));
-
-
 
         mMap.setMyLocationEnabled(true);
         //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,log), 4));
@@ -139,6 +131,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 RealParaderos.clear();
                 RealParaderos.addAll(tmpRealParaderos);
+                graficaLinea();
             }
 
             @Override
@@ -148,6 +141,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    private void graficaLinea(){
+        //Log.e("POSI","");
+        p1 = puntosForRuta.get(0);
+        p2 = puntosForRuta.get(1);
+        p3 = puntosForRuta.get(2);
+        p4 = puntosForRuta.get(3);
+        p5 = puntosForRuta.get(4);
+        p6 = puntosForRuta.get(5);
+
+        Log.e("POSI",""+p1.latitude);
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .add(p1)
+                .add(p2)
+                .add(p3)
+                .add(p4)
+                .add(p5)
+                .add(p6);
+        Polyline polyline = mMap.addPolyline(polylineOptions);
+
+    }
 
     private void retornaMiPosicion() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
